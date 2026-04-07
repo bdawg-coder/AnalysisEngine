@@ -1,0 +1,91 @@
+/* =========================================================
+   THEME TOKENS
+   All colors live here — swapping themes is one attribute change
+   ========================================================= */
+
+:root {
+  --topbar-height: 52px;
+  --sidenav-width: 220px;
+}
+
+/* Dark theme (default — industrial feel) */
+[data-theme='dark'] {
+  --color-background:     #0f1117;
+  --color-surface:        #161b27;
+  --color-surface-raised: #1e2535;
+  --color-surface-hover:  #232c3d;
+  --color-border:         #2a3347;
+
+  --color-text-primary:   #e8ecf2;
+  --color-text-secondary: #9eabbe;
+  --color-text-muted:     #5a6880;
+
+  --color-accent:         #4f9cf9;
+  --color-accent-subtle:  rgba(79, 156, 249, 0.12);
+
+  --color-success:        #3ecf8e;
+  --color-warning:        #f7b731;
+  --color-danger:         #f05252;
+}
+
+/* Light theme */
+[data-theme='light'] {
+  --color-background:     #f4f6f9;
+  --color-surface:        #ffffff;
+  --color-surface-raised: #f0f3f8;
+  --color-surface-hover:  #e8edf5;
+  --color-border:         #d8dfe8;
+
+  --color-text-primary:   #1a2235;
+  --color-text-secondary: #4a5568;
+  --color-text-muted:     #8898aa;
+
+  --color-accent:         #2563eb;
+  --color-accent-subtle:  rgba(37, 99, 235, 0.08);
+
+  --color-success:        #0d9f6e;
+  --color-warning:        #d97706;
+  --color-danger:         #dc2626;
+}
+
+/* =========================================================
+   RESET & BASE
+   ========================================================= */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  background: var(--color-background);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}

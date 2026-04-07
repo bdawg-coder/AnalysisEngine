@@ -1,0 +1,1 @@
+-- Intentionally empty — seeding is handled by seed.js at server startup
