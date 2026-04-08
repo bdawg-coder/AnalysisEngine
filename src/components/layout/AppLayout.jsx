@@ -1,19 +1,22 @@
 import { useState } from 'react'
+import { AnalysisProvider } from '../../context/AnalysisContext'
 import TopBar from './TopBar'
 import SideNav from './SideNav'
 import MainContent from './MainContent'
 import styles from './AppLayout.module.css'
 
 export default function AppLayout() {
-  const [activeSection, setActiveSection] = useState('overview')
+  const [menuOpen, setMenuOpen] = useState(true)
 
   return (
-    <div className={styles.appShell}>
-      <TopBar />
-      <div className={styles.body}>
-        <SideNav activeSection={activeSection} onSectionChange={setActiveSection} />
-        <MainContent activeSection={activeSection} />
+    <AnalysisProvider>
+      <div className={styles.appShell}>
+        <TopBar menuOpen={menuOpen} onMenuToggle={() => setMenuOpen(v => !v)} />
+        <div className={styles.body}>
+          <SideNav collapsed={!menuOpen} />
+          <MainContent />
+        </div>
       </div>
-    </div>
+    </AnalysisProvider>
   )
 }
