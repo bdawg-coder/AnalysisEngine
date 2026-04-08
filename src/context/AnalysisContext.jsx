@@ -31,6 +31,42 @@ export const COLORS = [
   { id: 'coastal-gray', label: 'Coastal Gray', hex: '#5a6060', families: ['ArmorGuard'] },
 ]
 
+const MOCK_RESULTS = {
+  totalColors: 7,
+  totalLines: 6,
+  kpis: {
+    oee: {
+      value: 82.3, vsPrev: +1.5,
+      details: [
+        { label: 'Availability', value: '87.4%' },
+        { label: 'Performance',  value: '91.2%' },
+        { label: 'Quality',      value: '94.7%' },
+      ],
+    },
+    availability: {
+      value: 87.4, vsPrev: +2.1,
+      details: [
+        { label: 'Run Time',  value: '14.2 hrs' },
+        { label: 'Down Time', value: '1.8 hrs'  },
+      ],
+    },
+    performance: {
+      value: 91.2, vsPrev: -0.8,
+      details: [
+        { label: 'Actual Rate', value: '94 lbs/hr'  },
+        { label: 'Target Rate', value: '103 lbs/hr' },
+      ],
+    },
+    quality: {
+      value: 94.7, vsPrev: +1.3,
+      details: [
+        { label: 'Good Lbs',  value: '1,240' },
+        { label: 'Scrap Lbs', value: '87'    },
+      ],
+    },
+  },
+}
+
 const AnalysisContext = createContext(null)
 
 export function AnalysisProvider({ children }) {
@@ -42,6 +78,8 @@ export function AnalysisProvider({ children }) {
   const [selectedLines,    setSelectedLines]    = useState(new Set(LINES))
   const [selectedFamilies, setSelectedFamilies] = useState(new Set())
   const [selectedColors,   setSelectedColors]   = useState(new Set(COLORS.map(c => c.id)))
+  const [analysisResults,  setAnalysisResults]  = useState(null)
+  const [isRunning,        setIsRunning]        = useState(false)
 
   // Filter colors by selected product families (empty selection = show all)
   const availableColors = useMemo(() => {
@@ -88,21 +126,18 @@ export function AnalysisProvider({ children }) {
     setSelectedLines(new Set(LINES))
     setSelectedFamilies(new Set())
     setSelectedColors(new Set(COLORS.map(c => c.id)))
+    setAnalysisResults(null)
+    setIsRunning(false)
   }
 
   function runAnalysis() {
     if (!canRun) return
-    // TODO: wire to analysis engine
-    console.log('[RunAnalysis]', {
-      plant,
-      analysisType,
-      startDate,
-      endDate,
-      shift,
-      lines:    [...selectedLines],
-      families: [...selectedFamilies],
-      colors:   [...selectedColors],
-    })
+    setIsRunning(true)
+    setAnalysisResults(null)
+    setTimeout(() => {
+      setAnalysisResults(MOCK_RESULTS)
+      setIsRunning(false)
+    }, 600)
   }
 
   return (
@@ -122,6 +157,8 @@ export function AnalysisProvider({ children }) {
       dateError,
       canRun,
       runAnalysis,
+      analysisResults,
+      isRunning,
     }}>
       {children}
     </AnalysisContext.Provider>
