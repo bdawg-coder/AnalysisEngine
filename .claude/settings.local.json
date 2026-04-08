@@ -1,7 +1,19 @@
 {
   "permissions": {
-    "allow": [
-      "Bash(npm install:*)"
+    "allow": []
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/hooks/validate_artifact.py",
+            "timeout": 10
+          }
+        ]
+      }
     ]
   }
 }
