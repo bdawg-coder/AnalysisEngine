@@ -1,8 +1,8 @@
-import styles from './ColorAnalysisPage.module.css'
+import styles from './ProductRunPage.module.css'
 import { useAnalysis, SHIFTS } from '../context/AnalysisContext'
 import { KpiCard, KpiCardSkeleton } from '../components/KpiCard'
 
-export default function ColorAnalysisPage() {
+export default function ProductRunPage() {
   const {
     startDate,
     endDate,
@@ -17,10 +17,10 @@ export default function ColorAnalysisPage() {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <h1 className={styles.title}>Color Analysis – Plant Overview</h1>
+        <h1 className={styles.title}>Product Run Analysis – Plant Overview</h1>
         <p className={styles.subtitle}>
           {startDate} – {endDate} · {shiftLabel} · Lines: {selectedLines.size} selected
-          {analysisResults && ` · ${analysisResults.totalColors} Colors · ${analysisResults.totalLines} Lines`}
+          {analysisResults && ` · ${analysisResults.totalLines} Lines`}
         </p>
       </header>
 

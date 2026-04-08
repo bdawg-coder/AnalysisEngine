@@ -1,10 +1,12 @@
 import styles from './MainContent.module.css'
 import { useAnalysis } from '../../context/AnalysisContext'
 import ColorAnalysisPage from '../../pages/ColorAnalysisPage'
+import ProductRunPage from '../../pages/ProductRunPage'
 
 export default function MainContent() {
   const { analysisType } = useAnalysis()
 
+  if (analysisType === 'product_run')    return <ProductRunPage />
   if (analysisType === 'color_analysis') return <ColorAnalysisPage />
 
   return (

@@ -6,8 +6,8 @@ export const PLANTS = [
 ]
 
 export const ANALYSIS_TYPES = [
-  { value: 'color_analysis', label: 'Color Analysis' },
   { value: 'product_run',    label: 'Product Run' },
+  { value: 'color_analysis', label: 'Color Analysis' },
 ]
 
 export const SHIFTS = [
