@@ -116,20 +116,6 @@ export default function SideNav({ collapsed }) {
               </select>
             </div>
 
-            {/* ── Actions: Run + Clear ── */}
-            <div className={styles.section}>
-              <button
-                className={styles.runBtn}
-                disabled={!canRun}
-                onClick={runAnalysis}
-              >
-                RUN ANALYSIS ↗
-              </button>
-              <button className={styles.clearBtn} onClick={clearAll}>
-                Clear all
-              </button>
-            </div>
-
             {/* ── Color Analysis Filters (conditional) ── */}
             {analysisType === 'color_analysis' && (
               <>
@@ -189,6 +175,20 @@ export default function SideNav({ collapsed }) {
                 </div>
               </>
             )}
+
+            {/* ── Actions: Run + Clear ── */}
+            <div className={styles.section}>
+              <button
+                className={styles.runBtn}
+                disabled={!canRun}
+                onClick={runAnalysis}
+              >
+                RUN ANALYSIS ↗
+              </button>
+              <button className={styles.clearBtn} onClick={clearAll}>
+                Clear all
+              </button>
+            </div>
 
           </div>
         </>

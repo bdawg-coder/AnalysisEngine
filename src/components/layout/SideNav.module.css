@@ -243,3 +243,23 @@
   border-color: var(--color-accent);
   color: var(--color-accent);
 }
+
+/* ── Mobile overlay mode ─────────────────────────── */
+
+@media (max-width: 767px) {
+  .sideNav {
+    position: fixed;
+    top: var(--topbar-height);
+    left: 0;
+    height: calc(100% - var(--topbar-height));
+    z-index: 200;
+    width: 272px;
+    transform: translateX(0);
+    transition: transform 0.2s ease;
+  }
+
+  .sideNav[data-collapsed='true'] {
+    width: 272px;
+    transform: translateX(-272px);
+  }
+}

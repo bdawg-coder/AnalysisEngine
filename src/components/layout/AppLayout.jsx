@@ -6,7 +6,7 @@ import MainContent from './MainContent'
 import styles from './AppLayout.module.css'
 
 export default function AppLayout() {
-  const [menuOpen, setMenuOpen] = useState(true)
+  const [menuOpen, setMenuOpen] = useState(window.innerWidth >= 768)
 
   return (
     <AnalysisProvider>
@@ -16,6 +16,7 @@ export default function AppLayout() {
           <SideNav collapsed={!menuOpen} />
           <MainContent />
         </div>
+        {menuOpen && <div className={styles.backdrop} onClick={() => setMenuOpen(false)} />}
       </div>
     </AnalysisProvider>
   )

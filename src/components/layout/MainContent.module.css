@@ -54,3 +54,13 @@
 .placeholderCard strong {
   color: var(--color-text-secondary);
 }
+
+@media (max-width: 767px) {
+  .pageHeader {
+    padding: 1rem;
+  }
+
+  .placeholderCard {
+    padding: 1.5rem 1rem;
+  }
+}

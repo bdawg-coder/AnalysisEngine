@@ -105,3 +105,17 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+@media (max-width: 767px) {
+  .page {
+    align-items: flex-start;
+    padding-top: 2rem;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 100%;
+    padding: 1.5rem 1rem;
+    border-radius: 0;
+  }
+}
