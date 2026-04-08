@@ -94,6 +94,19 @@ index.html
 
 ---
 
+### 2026-04-08 — Verify: Onboarding & Filter Updates
+- **Result:** ready for commit
+- **Tests:** N/A — no test framework configured
+- **Coverage:** N/A
+- **Issues:** 0 critical, 0 warnings (5 low-impact deviations — all accepted)
+
+### 2026-04-08 — Onboarding & Filter Updates (all 3 phases)
+- **Files changed:** `src/context/AnalysisContext.jsx`, `src/components/layout/SideNav.jsx`, `src/pages/ColorAnalysisPage.jsx`, `src/pages/ProductRunPage.jsx`, `src/pages/OverviewAnalysisPage.jsx` (new), `src/pages/OverviewAnalysisPage.module.css` (new), `src/components/layout/MainContent.jsx`, `src/components/layout/MainContent.module.css`
+- **Tests:** N/A — no test framework configured
+- **Deviations:** Analysis Type dropdown empty option relabeled "Overview Analysis" (was "Select type…") for clarity
+
+---
+
 ### 2026-04-08 — Verify: Product Run Page
 - **Result:** ready for commit
 - **Tests:** N/A — no test framework configured

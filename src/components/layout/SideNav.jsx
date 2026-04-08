@@ -1,16 +1,17 @@
 import {
   useAnalysis,
-  PLANTS, ANALYSIS_TYPES, SHIFTS, LINES, PRODUCT_FAMILIES,
+  PLANTS, ANALYSIS_TYPES, AREAS, LINES, PRODUCT_FAMILIES,
 } from '../../context/AnalysisContext'
 import styles from './SideNav.module.css'
 
 export default function SideNav({ collapsed }) {
   const {
     plant,        setPlant,
+    area,         setArea,
     analysisType, setAnalysisType,
     startDate,    setStartDate,
     endDate,      setEndDate,
-    shift,        setShift,
+    groupBy,      setGroupBy,
     selectedLines,    toggleLine,
     selectedFamilies, toggleFamily, toggleAllFamilies,
     selectedColors,   toggleColor,  toggleAllColors,
@@ -51,6 +52,20 @@ export default function SideNav({ collapsed }) {
               </select>
             </div>
 
+            {/* ── Area ── */}
+            <div className={styles.section}>
+              <span className={styles.sectionLabel}>Area</span>
+              <select
+                className={styles.select}
+                value={area}
+                onChange={e => setArea(e.target.value)}
+              >
+                {AREAS[plant]?.map(a => (
+                  <option key={a} value={a}>{a}</option>
+                ))}
+              </select>
+            </div>
+
             {/* ── Analysis Type ── */}
             <div className={styles.section}>
               <span className={styles.sectionLabel}>Analysis Type</span>
@@ -59,7 +74,7 @@ export default function SideNav({ collapsed }) {
                 value={analysisType}
                 onChange={e => setAnalysisType(e.target.value)}
               >
-                <option value="">Select type…</option>
+                <option value="">Overview Analysis</option>
                 {ANALYSIS_TYPES.map(t => (
                   <option key={t.value} value={t.value}>{t.label}</option>
                 ))}
@@ -102,19 +117,24 @@ export default function SideNav({ collapsed }) {
               </div>
             </div>
 
-            {/* ── Shift ── */}
-            <div className={styles.section}>
-              <span className={styles.sectionLabel}>Shift</span>
-              <select
-                className={styles.select}
-                value={shift}
-                onChange={e => setShift(e.target.value)}
-              >
-                {SHIFTS.map(s => (
-                  <option key={s.value} value={s.value}>{s.label}</option>
-                ))}
-              </select>
-            </div>
+            {/* ── Group Data By (Overview Analysis only) ── */}
+            {analysisType === '' && (
+              <div className={styles.section}>
+                <span className={styles.sectionLabel}>Group Data By</span>
+                <select
+                  className={styles.select}
+                  value={groupBy}
+                  onChange={e => setGroupBy(e.target.value)}
+                >
+                  <option value="" disabled>Select grouping…</option>
+                  <option value="month">Month</option>
+                  <option value="week">Week</option>
+                  <option value="day">Day</option>
+                  <option value="shift">Shift</option>
+                  <option value="run">Run</option>
+                </select>
+              </div>
+            )}
 
             {/* ── Color Analysis Filters (conditional) ── */}
             {analysisType === 'color_analysis' && (

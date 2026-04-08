@@ -10,11 +10,10 @@ export const ANALYSIS_TYPES = [
   { value: 'color_analysis', label: 'Color Analysis' },
 ]
 
-export const SHIFTS = [
-  { value: 'all',   label: 'All Shifts' },
-  { value: 'day',   label: 'Day' },
-  { value: 'night', label: 'Night' },
-]
+export const AREAS = {
+  all:  ['All', 'PE'],
+  '1nl': ['All', 'PE'],
+}
 
 // Mock parameter data — replace with API/config calls later
 export const LINES = ['L-19', 'L-20', 'L-21', 'L-22', 'L-23', 'L-24']
@@ -71,10 +70,11 @@ const AnalysisContext = createContext(null)
 
 export function AnalysisProvider({ children }) {
   const [plant,            setPlant]            = useState('all')
+  const [area,             setArea]             = useState('All')
   const [analysisType,     setAnalysisType]     = useState('')
   const [startDate,        setStartDate]        = useState('2025-01-01')
   const [endDate,          setEndDate]          = useState('2025-03-31')
-  const [shift,            setShift]            = useState('all')
+  const [groupBy,          setGroupBy]          = useState('')
   const [selectedLines,    setSelectedLines]    = useState(new Set(LINES))
   const [selectedFamilies, setSelectedFamilies] = useState(new Set())
   const [selectedColors,   setSelectedColors]   = useState(new Set(COLORS.map(c => c.id)))
@@ -93,11 +93,11 @@ export function AnalysisProvider({ children }) {
       : null
 
   const canRun =
-    analysisType !== '' &&
     startDate !== '' &&
-    endDate !== '' &&
+    endDate   !== '' &&
     !dateError &&
-    selectedLines.size > 0
+    selectedLines.size > 0 &&
+    (analysisType !== '' || groupBy !== '')
 
   function toggle(setter, value) {
     setter(prev => {
@@ -119,10 +119,11 @@ export function AnalysisProvider({ children }) {
 
   function clearAll() {
     setPlant('all')
+    setArea('All')
     setAnalysisType('')
     setStartDate('')
     setEndDate('')
-    setShift('all')
+    setGroupBy('')
     setSelectedLines(new Set(LINES))
     setSelectedFamilies(new Set())
     setSelectedColors(new Set(COLORS.map(c => c.id)))
@@ -143,10 +144,11 @@ export function AnalysisProvider({ children }) {
   return (
     <AnalysisContext.Provider value={{
       plant,        setPlant,
+      area,         setArea,
       analysisType, setAnalysisType,
       startDate,    setStartDate,
       endDate,      setEndDate,
-      shift,        setShift,
+      groupBy,      setGroupBy,
       selectedLines,    toggleLine:       v => toggle(setSelectedLines,    v),
       selectedFamilies, toggleFamily:     v => toggle(setSelectedFamilies, v),
       selectedColors,   toggleColor:      v => toggle(setSelectedColors,   v),

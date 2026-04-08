@@ -1,25 +1,22 @@
 import styles from './ProductRunPage.module.css'
-import { useAnalysis, SHIFTS } from '../context/AnalysisContext'
+import { useAnalysis } from '../context/AnalysisContext'
 import { KpiCard, KpiCardSkeleton } from '../components/KpiCard'
 
 export default function ProductRunPage() {
   const {
     startDate,
     endDate,
-    shift,
     selectedLines,
     analysisResults,
     isRunning,
   } = useAnalysis()
-
-  const shiftLabel = SHIFTS.find(s => s.value === shift)?.label ?? shift
 
   return (
     <div className={styles.page}>
       <header className={styles.header}>
         <h1 className={styles.title}>Product Run Analysis – Plant Overview</h1>
         <p className={styles.subtitle}>
-          {startDate} – {endDate} · {shiftLabel} · Lines: {selectedLines.size} selected
+          {startDate} – {endDate} · Lines: {selectedLines.size} selected
           {analysisResults && ` · ${analysisResults.totalLines} Lines`}
         </p>
       </header>
