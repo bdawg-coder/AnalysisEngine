@@ -30,6 +30,145 @@ export const COLORS = [
   { id: 'coastal-gray', label: 'Coastal Gray', hex: '#5a6060', families: ['ArmorGuard'] },
 ]
 
+// Seed-based pseudo-random so values look realistic but are deterministic
+function fakeMetric(base, range, seed) {
+  return Math.round((base + ((seed * 7919) % range) - range / 2) * 10) / 10
+}
+
+// Returns [{label, isoDate, time?}] derived from the actual date range + groupBy
+function buildGroupOptions(groupBy, startDate, endDate) {
+  const start = new Date(startDate + 'T00:00:00')
+  const end   = new Date(endDate   + 'T00:00:00')
+
+  if (groupBy === 'month') {
+    const opts = []
+    const d = new Date(start.getFullYear(), start.getMonth(), 1)
+    while (d <= end && opts.length < 6) {
+      opts.push({ label: d.toLocaleDateString('en-US', { month: 'short' }), date: new Date(d) })
+      d.setMonth(d.getMonth() + 1)
+    }
+    return opts.length ? opts : [{ label: 'Jan', date: start }]
+  }
+
+  if (groupBy === 'week') {
+    const opts = []
+    const d = new Date(start)
+    let n = 1
+    while (d <= end && opts.length < 8) {
+      opts.push({ label: `Week ${n}`, date: new Date(d) })
+      d.setDate(d.getDate() + 7)
+      n++
+    }
+    return opts.length ? opts : [{ label: 'Week 1', date: start }]
+  }
+
+  if (groupBy === 'day') {
+    const opts = []
+    const d = new Date(start)
+    while (d <= end && opts.length < 7) {
+      const iso = d.toISOString().slice(0, 10)
+      opts.push({ label: iso, date: new Date(d) })
+      d.setDate(d.getDate() + 1)
+    }
+    return opts.length ? opts : [{ label: startDate, date: start }]
+  }
+
+  if (groupBy === 'shift') {
+    // 2-2-3 pitman schedule, 7-7 shifts: A & B = day (07:00–19:00), C & D = night (19:00–07:00)
+    return [
+      { label: 'Shift A', date: start, isDay: true  },
+      { label: 'Shift B', date: start, isDay: true  },
+      { label: 'Shift C', date: start, isDay: false },
+      { label: 'Shift D', date: start, isDay: false },
+    ]
+  }
+
+  if (groupBy === 'run') {
+    const totalDays = Math.max(1, Math.ceil((end - start) / 86400000))
+    const count = Math.min(Math.max(Math.ceil(totalDays / 7), 3), 6)
+    const step  = Math.floor(totalDays / count)
+    return Array.from({ length: count }, (_, i) => {
+      const d = new Date(start)
+      d.setDate(d.getDate() + i * step)
+      return { label: `WO-${10021 + i}`, date: new Date(d) }
+    })
+  }
+
+  return buildGroupOptions('month', startDate, endDate)
+}
+
+function getRowTimes(groupBy, option) {
+  const fmt  = (d) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  const iso  = (d) => d.toISOString().slice(0, 10)
+
+  if (groupBy === 'month') {
+    const endOfMonth = new Date(option.date.getFullYear(), option.date.getMonth() + 1, 0)
+    return { startTime: `${fmt(option.date)} 07:00`, endTime: `${fmt(endOfMonth)} 19:00` }
+  }
+  if (groupBy === 'week') {
+    const weekEnd = new Date(option.date)
+    weekEnd.setDate(weekEnd.getDate() + 6)
+    return { startTime: `${fmt(option.date)} 07:00`, endTime: `${fmt(weekEnd)} 19:00` }
+  }
+  if (groupBy === 'day') {
+    return { startTime: `${option.label} 07:00`, endTime: `${option.label} 19:00` }
+  }
+  if (groupBy === 'shift') {
+    if (option.isDay) {
+      return { startTime: `${iso(option.date)} 07:00`, endTime: `${iso(option.date)} 19:00` }
+    }
+    const nextDay = new Date(option.date)
+    nextDay.setDate(nextDay.getDate() + 1)
+    return { startTime: `${iso(option.date)} 19:00`, endTime: `${iso(nextDay)} 07:00` }
+  }
+  if (groupBy === 'run') {
+    const runEnd = new Date(option.date)
+    runEnd.setDate(runEnd.getDate() + 4)
+    return { startTime: `${fmt(option.date)} 07:00`, endTime: `${fmt(runEnd)} 19:00` }
+  }
+  return { startTime: `${iso(option.date)} 07:00`, endTime: `${iso(option.date)} 19:00` }
+}
+
+function buildMockRows(groupBy, selectedLines, startDate, endDate) {
+  const lines   = [...selectedLines]
+  const options = buildGroupOptions(groupBy, startDate, endDate)
+  const rows    = []
+  lines.forEach((line, li) => {
+    options.forEach((option, gi) => {
+      const seed        = li * options.length + gi
+      const targetRate  = 1200 + li * 50
+      const actualRate  = Math.round(targetRate * fakeMetric(0.91, 0.12, seed + 1) * 10) / 10
+      const duration    = fakeMetric(8.0, 2.0, seed + 2)
+      const runTime     = Math.round(duration * fakeMetric(0.88, 0.1, seed + 3) * 10) / 10
+      const unplannedDT = Math.round((duration - runTime) * 0.6 * 10) / 10
+      const plannedDT   = Math.round((duration - runTime - unplannedDT) * 10) / 10
+      const oee         = fakeMetric(83, 14, seed + 4)
+      const availability = fakeMetric(88, 10, seed + 5)
+      const performance  = fakeMetric(91, 8,  seed + 6)
+      const quality      = fakeMetric(95, 6,  seed + 7)
+      const infeed       = Math.round(targetRate * fakeMetric(1.02, 0.06, seed + 8))
+      const outfeed      = Math.round(infeed * fakeMetric(0.96, 0.06, seed + 9))
+      const scrap        = infeed - outfeed
+      const scrapPct     = Math.round((scrap / infeed) * 1000) / 10
+      const { startTime, endTime } = getRowTimes(groupBy, option)
+      rows.push({
+        line,
+        groupedOption: option.label,
+        startTime,
+        endTime,
+        duration:      `${duration} hrs`,
+        runTime:       `${runTime} hrs`,
+        unplannedDT:   `${unplannedDT} hrs`,
+        plannedDT:     `${plannedDT} hrs`,
+        oee, availability, performance, quality,
+        infeed, outfeed, scrap, scrapPct,
+        targetRate, actualRate,
+      })
+    })
+  })
+  return rows
+}
+
 const MOCK_RESULTS = {
   totalColors: 7,
   totalLines: 6,
@@ -135,8 +274,14 @@ export function AnalysisProvider({ children }) {
     if (!canRun) return
     setIsRunning(true)
     setAnalysisResults(null)
+    // Snapshot filter state at call time so async result reflects what was selected
+    const snap = { groupBy, selectedLines, startDate, endDate }
     setTimeout(() => {
-      setAnalysisResults(MOCK_RESULTS)
+      setAnalysisResults({
+        ...MOCK_RESULTS,
+        groupBy: snap.groupBy,
+        rows: buildMockRows(snap.groupBy, snap.selectedLines, snap.startDate, snap.endDate),
+      })
       setIsRunning(false)
     }, 600)
   }
