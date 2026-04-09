@@ -63,24 +63,28 @@ const MOCK_OPERATOR_NOTES = [
     id: 1,
     author:    'J. Martinez',
     timestamp: 'Jan 6, 2025 08:14',
+    ts:        '2025-01-06T08:14',
     text:      'Die pressure running slightly high at startup. Adjusted barrel temps +5°F. Stabilized after ~10 min.',
   },
   {
     id: 2,
     author:    'T. Nguyen',
     timestamp: 'Jan 6, 2025 10:42',
+    ts:        '2025-01-06T10:42',
     text:      'Surge event — material feed interrupted for ~8 min. Cleared blockage at hopper throat. Back to normal rate.',
   },
   {
     id: 3,
     author:    'J. Martinez',
     timestamp: 'Jan 6, 2025 13:05',
+    ts:        '2025-01-06T13:05',
     text:      'Planned changeover for die cleaning. 20 min downtime. All dimensions back in spec after restart.',
   },
   {
     id: 4,
     author:    'R. Okafor',
     timestamp: 'Jan 6, 2025 15:30',
+    ts:        '2025-01-06T15:30',
     text:      'End-of-shift check: OEE tracking below target. Notified supervisor. Co-extruder S2 showing intermittent pressure drop.',
   },
 ]
@@ -563,6 +567,7 @@ function SnapshotTable({ selectedTags, timestamp, workOrder }) {
             <th className={styles.snapshotTd}>Zone</th>
             <th className={`${styles.snapshotTd} ${styles.snapshotTdNum}`}>Setpoint</th>
             <th className={`${styles.snapshotTd} ${styles.snapshotTdNum}`}>Actual</th>
+            <th className={`${styles.snapshotTd} ${styles.snapshotTdStatus}`}>Status</th>
           </tr>
         </thead>
         <tbody>
@@ -570,15 +575,21 @@ function SnapshotTable({ selectedTags, timestamp, workOrder }) {
             const tags = selectedTags.filter(t => t.group === group)
             return [
               <tr key={`grp-${group}`}>
-                <td colSpan={3} className={styles.snapshotGroupHeader}>{group}</td>
+                <td colSpan={4} className={styles.snapshotGroupHeader}>{group}</td>
               </tr>,
               ...tags.map(tag => {
                 const { setpoint, actual } = interpolate(tag)
+                const deviation = actual - setpoint
+                const devLabel = (deviation >= 0 ? '+' : '') + deviation.toFixed(1)
+                const badge = Math.abs(deviation) > 10
+                  ? <span className={styles.deviationHigh}>{devLabel}</span>
+                  : <span className={styles.deviationNormal}>{devLabel}</span>
                 return (
                   <tr key={tag.id}>
                     <td className={styles.snapshotTd}>{tag.label}</td>
                     <td className={`${styles.snapshotTd} ${styles.snapshotTdNum}`}>{setpoint.toFixed(1)}</td>
                     <td className={`${styles.snapshotTd} ${styles.snapshotTdNum}`}>{actual.toFixed(1)}</td>
+                    <td className={`${styles.snapshotTd} ${styles.snapshotTdStatus}`}>{badge}</td>
                   </tr>
                 )
               }),
@@ -590,13 +601,16 @@ function SnapshotTable({ selectedTags, timestamp, workOrder }) {
   )
 }
 
-function RawMaterialPanel({ workOrder, rangeStart, rangeEnd, onRangeChange }) {
+function RawMaterialPanel({ workOrder, rangeStart, rangeEnd, independent, onRangeChange }) {
   function toInputVal(isoOrFmt) {
     const d = new Date(isoOrFmt)
     if (isNaN(d.getTime())) return ''
     const pad = n => String(n).padStart(2, '0')
     return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
   }
+
+  const minVal = independent ? undefined : toInputVal(workOrder?.startTime ?? '')
+  const maxVal = independent ? undefined : toInputVal(workOrder?.endTime   ?? '')
 
   const materials = workOrder
     ? buildMockMaterials(workOrder.startTime, workOrder.endTime, rangeStart, rangeEnd)
@@ -611,8 +625,8 @@ function RawMaterialPanel({ workOrder, rangeStart, rangeEnd, onRangeChange }) {
           type="datetime-local"
           className={styles.rawMatInput}
           value={toInputVal(rangeStart)}
-          min={toInputVal(workOrder?.startTime ?? '')}
-          max={toInputVal(workOrder?.endTime ?? '')}
+          min={minVal}
+          max={maxVal}
           onChange={e => onRangeChange(e.target.value, rangeEnd)}
         />
         <label className={styles.rawMatLabel}>To</label>
@@ -620,8 +634,8 @@ function RawMaterialPanel({ workOrder, rangeStart, rangeEnd, onRangeChange }) {
           type="datetime-local"
           className={styles.rawMatInput}
           value={toInputVal(rangeEnd)}
-          min={toInputVal(workOrder?.startTime ?? '')}
-          max={toInputVal(workOrder?.endTime ?? '')}
+          min={minVal}
+          max={maxVal}
           onChange={e => onRangeChange(rangeStart, e.target.value)}
         />
       </div>
@@ -649,15 +663,26 @@ function RawMaterialPanel({ workOrder, rangeStart, rangeEnd, onRangeChange }) {
   )
 }
 
-function AnalysisPanel({ workOrder }) {
+function AnalysisPanel({ workOrder, independent }) {
   const [activeTab,          setActiveTab]          = useState('trending')
   const [selectedTags,       setSelectedTags]       = useState(new Set())
   const [selectedTimestamp,  setSelectedTimestamp]  = useState(null)
   const [realtimeTimestamp,  setRealtimeTimestamp]  = useState(null)
-  const [matRangeStart,      setMatRangeStart]      = useState(workOrder?.startTime ?? '')
-  const [matRangeEnd,        setMatRangeEnd]        = useState(workOrder?.endTime   ?? '')
   const [trendStart,         setTrendStart]         = useState(workOrder?.startTime ?? '')
   const [trendEnd,           setTrendEnd]           = useState(workOrder?.endTime   ?? '')
+  const [matRangeStart,      setMatRangeStart]      = useState(workOrder?.startTime ?? '')
+  const [matRangeEnd,        setMatRangeEnd]        = useState(workOrder?.endTime   ?? '')
+  const [notesStart,         setNotesStart]         = useState(workOrder?.startTime ?? '')
+  const [notesEnd,           setNotesEnd]           = useState(workOrder?.endTime   ?? '')
+
+  useEffect(() => {
+    setTrendStart(workOrder?.startTime ?? '')
+    setTrendEnd(workOrder?.endTime   ?? '')
+    setMatRangeStart(workOrder?.startTime ?? '')
+    setMatRangeEnd(workOrder?.endTime   ?? '')
+    setNotesStart(workOrder?.startTime ?? '')
+    setNotesEnd(workOrder?.endTime   ?? '')
+  }, [workOrder])
 
   return (
     <div className={styles.analysisPanel}>
@@ -702,8 +727,8 @@ function AnalysisPanel({ workOrder }) {
                   const pad = n => String(n).padStart(2, '0')
                   return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
                 }
-                const minVal = toInputVal(workOrder?.startTime ?? '')
-                const maxVal = toInputVal(workOrder?.endTime   ?? '')
+                const minVal = independent ? undefined : toInputVal(workOrder?.startTime ?? '')
+                const maxVal = independent ? undefined : toInputVal(workOrder?.endTime   ?? '')
                 return (
                   <div className={styles.trendRangeRow}>
                     <label className={styles.trendRangeLabel}>From</label>
@@ -738,8 +763,8 @@ function AnalysisPanel({ workOrder }) {
                 const pad = n => String(n).padStart(2, '0')
                 return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
               }
-              const minVal = toInputVal(workOrder?.startTime ?? '')
-              const maxVal = toInputVal(workOrder?.endTime   ?? '')
+              const minVal = independent ? undefined : toInputVal(workOrder?.startTime ?? '')
+              const maxVal = independent ? undefined : toInputVal(workOrder?.endTime   ?? '')
               const curVal = realtimeTimestamp ? toInputVal(realtimeTimestamp.toISOString()) : ''
 
               function handleChange(e) {
@@ -774,16 +799,51 @@ function AnalysisPanel({ workOrder }) {
           </div>
         )}
         {activeTab === 'notes' && (
-          <div className={styles.notesFeed}>
-            {MOCK_OPERATOR_NOTES.map(note => (
-              <div key={note.id} className={styles.noteCard}>
-                <div className={styles.noteMeta}>
-                  <span className={styles.noteAuthor}>{note.author}</span>
-                  <span className={styles.noteTimestamp}>{note.timestamp}</span>
-                </div>
-                <p className={styles.noteText}>{note.text}</p>
-              </div>
-            ))}
+          <div className={styles.notesTab}>
+            {(() => {
+              function toInputVal(iso) {
+                const d = new Date(iso)
+                if (isNaN(d.getTime())) return ''
+                const pad = n => String(n).padStart(2, '0')
+                return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+              }
+              const minVal = independent ? undefined : toInputVal(workOrder?.startTime ?? '')
+              const maxVal = independent ? undefined : toInputVal(workOrder?.endTime   ?? '')
+              const t0 = notesStart ? new Date(notesStart).getTime() : -Infinity
+              const t1 = notesEnd   ? new Date(notesEnd).getTime()   : Infinity
+              const visibleNotes = MOCK_OPERATOR_NOTES.filter(note => {
+                const ts = new Date(note.ts).getTime()
+                return ts >= t0 && ts <= t1
+              })
+              return (
+                <>
+                  <div className={styles.trendRangeRow}>
+                    <label className={styles.trendRangeLabel}>From</label>
+                    <input type="datetime-local" className={styles.trendRangeInput}
+                      value={toInputVal(notesStart)} min={minVal} max={maxVal}
+                      onChange={e => setNotesStart(e.target.value)} />
+                    <label className={styles.trendRangeLabel}>To</label>
+                    <input type="datetime-local" className={styles.trendRangeInput}
+                      value={toInputVal(notesEnd)} min={minVal} max={maxVal}
+                      onChange={e => setNotesEnd(e.target.value)} />
+                  </div>
+                  <div className={styles.notesFeed}>
+                    {visibleNotes.length > 0
+                      ? visibleNotes.map(note => (
+                          <div key={note.id} className={styles.noteCard}>
+                            <div className={styles.noteMeta}>
+                              <span className={styles.noteAuthor}>{note.author}</span>
+                              <span className={styles.noteTimestamp}>{note.timestamp}</span>
+                            </div>
+                            <p className={styles.noteText}>{note.text}</p>
+                          </div>
+                        ))
+                      : <p className={styles.placeholder}>No notes in this time range.</p>
+                    }
+                  </div>
+                </>
+              )
+            })()}
           </div>
         )}
         {activeTab === 'raw_material' && (
@@ -791,6 +851,7 @@ function AnalysisPanel({ workOrder }) {
             workOrder={workOrder}
             rangeStart={matRangeStart}
             rangeEnd={matRangeEnd}
+            independent={independent}
             onRangeChange={(s, e) => { setMatRangeStart(s); setMatRangeEnd(e) }}
           />
         )}
@@ -907,7 +968,7 @@ export default function WorkOrderDetailsPage() {
         <h2 className={styles.sectionTitle}>Analysis</h2>
         <SplitPane
           leftPanel={<AnalysisPanel  workOrder={wo} />}
-          rightPanel={<AnalysisPanel workOrder={wo} />}
+          rightPanel={<AnalysisPanel workOrder={wo} independent />}
         />
       </section>
     </div>

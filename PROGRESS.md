@@ -305,3 +305,32 @@ index.html
 - **Tests:** N/A — no test framework configured
 - **Coverage:** N/A
 - **Issues:** 0 critical, 2 warnings (column `label` vs `header` key — accepted; `MOCK_WO_DESCRIPTIONS` redundant but harmless — accepted)
+
+---
+
+### 2026-04-09 — Phase 1 of Real-Time Indicators & Right Panel Time Control (Deviation Indicators)
+- **Files changed:** `src/pages/WorkOrderDetailsPage.jsx`, `src/pages/WorkOrderDetailsPage.module.css`
+- **Tests:** N/A — no test framework configured
+- **Deviations:** none
+
+---
+
+### 2026-04-09 — Verify: Clear All Clears Date Range Fields
+- **Result:** ready for commit
+- **Tests:** N/A — no test framework configured
+- **Coverage:** N/A
+- **Issues:** 0 critical, 0 warnings
+
+---
+
+### 2026-04-09 — Phase 1 of Clear All Clears Date Range Fields
+- **Files changed:** `src/context/AnalysisContext.jsx`
+- **Tests:** N/A — no test framework configured
+- **Deviations:** none
+
+---
+
+### 2026-04-09 — Phase 2 of Real-Time Indicators & Right Panel Time Control (Right Panel Time Range)
+- **Files changed:** `src/pages/WorkOrderDetailsPage.jsx`, `src/pages/WorkOrderDetailsPage.module.css`
+- **Tests:** N/A — no test framework configured
+- **Deviations:** `RawMaterialPanel` internal time inputs removed (were rendered inside the component); component simplified to receive `rangeStart`/`rangeEnd` as pure display props — cleaner than keeping the redundant internal inputs

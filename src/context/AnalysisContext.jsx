@@ -276,8 +276,8 @@ export function AnalysisProvider({ children }) {
     setPlant('all')
     setArea('All')
     // analysisType intentionally NOT reset — user stays on current analysis page
-    setStartDate('2025-01-01')
-    setEndDate('2025-03-31')
+    setStartDate('')
+    setEndDate('')
     setGroupBy('')
     setSelectedLines(new Set(LINES))
     setSelectedFamilies(new Set())
