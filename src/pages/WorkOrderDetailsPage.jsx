@@ -269,7 +269,9 @@ function TagSelector({ selectedTags, onToggle, onGroupToggle }) {
   )
 }
 
-function TrendChart({ workOrder, selectedTags, selectedTimestamp, onTimestampSelect }) {
+function TrendChart({ workOrder, selectedTags, selectedTimestamp, onTimestampSelect, rangeStart, rangeEnd }) {
+  const [hoverInfo, setHoverInfo] = useState(null)
+
   const PAD = { top: 16, right: 16, bottom: 28, left: 44 }
   const W   = 800
   const H   = 280
@@ -277,8 +279,10 @@ function TrendChart({ workOrder, selectedTags, selectedTimestamp, onTimestampSel
   const plotW = W - PAD.left - PAD.right
   const plotH = H - PAD.top  - PAD.bottom
 
-  const t0 = workOrder?.startTime ? new Date(workOrder.startTime).getTime() : 0
-  const t1 = workOrder?.endTime   ? new Date(workOrder.endTime).getTime()   : t0 + 3600000
+  const t0 = rangeStart ? new Date(rangeStart).getTime()
+           : workOrder?.startTime ? new Date(workOrder.startTime).getTime() : 0
+  const t1 = rangeEnd   ? new Date(rangeEnd).getTime()
+           : workOrder?.endTime   ? new Date(workOrder.endTime).getTime()   : t0 + 3600000
 
   const seriesData = selectedTags.map(tag =>
     buildMockTagSeries(tag, workOrder?.startTime ?? '', workOrder?.endTime ?? '')
@@ -304,6 +308,34 @@ function TrendChart({ workOrder, selectedTags, selectedTimestamp, onTimestampSel
     onTimestampSelect(new Date(t0 + ratio * (t1 - t0)))
   }
 
+  function handleMouseMove(e) {
+    const svg    = e.currentTarget
+    const rect   = svg.getBoundingClientRect()
+    const clickX = e.clientX - rect.left
+    const clickY = e.clientY - rect.top
+    const svgX   = (clickX / rect.width)  * W
+    const svgY   = (clickY / rect.height) * H
+    const ratio  = Math.max(0, Math.min(1, (svgX - PAD.left) / plotW))
+    const ts     = new Date(t0 + ratio * (t1 - t0))
+    const tMs    = ts.getTime()
+
+    const points = seriesData.map((series, i) => {
+      let nearest = series[0]
+      let minDist = Infinity
+      series.forEach(p => {
+        const d = Math.abs(p.ts.getTime() - tMs)
+        if (d < minDist) { minDist = d; nearest = p }
+      })
+      return { tag: selectedTags[i], actual: nearest.actual, setpoint: nearest.setpoint }
+    })
+
+    setHoverInfo({ x: svgX, y: svgY, ts, points })
+  }
+
+  function handleMouseLeave() {
+    setHoverInfo(null)
+  }
+
   const cursorX = selectedTimestamp
     ? toX(selectedTimestamp.getTime())
     : null
@@ -323,6 +355,8 @@ function TrendChart({ workOrder, selectedTags, selectedTimestamp, onTimestampSel
         preserveAspectRatio="none"
         style={{ width: '100%', height: '100%', cursor: 'crosshair' }}
         onClick={handleClick}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
       >
         {/* Y-axis ticks */}
         {[0, 0.25, 0.5, 0.75, 1].map(frac => {
@@ -374,6 +408,44 @@ function TrendChart({ workOrder, selectedTags, selectedTimestamp, onTimestampSel
             strokeWidth="1"
             strokeDasharray="4 2"
           />
+        )}
+
+        {/* Hover indicator + tooltip */}
+        {hoverInfo && (
+          <g>
+            <line
+              x1={hoverInfo.x} x2={hoverInfo.x}
+              y1={PAD.top} y2={PAD.top + plotH}
+              stroke="var(--color-text-muted, #9ca3af)"
+              strokeWidth="1"
+              strokeDasharray="2 2"
+            />
+            {(() => {
+              const tipX  = hoverInfo.x + 8 > W - 160 ? hoverInfo.x - 168 : hoverInfo.x + 8
+              const tipY  = Math.max(PAD.top, Math.min(hoverInfo.y - 10, H - (20 + hoverInfo.points.length * 16)))
+              const label = hoverInfo.ts.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+              return (
+                <g>
+                  <rect
+                    x={tipX} y={tipY}
+                    width={160} height={18 + hoverInfo.points.length * 16}
+                    rx={3} ry={3}
+                    fill="var(--color-surface-1, #fff)"
+                    stroke="var(--color-border, #e5e7eb)"
+                    strokeWidth="1"
+                  />
+                  <text x={tipX + 6} y={tipY + 12} fontSize="9" fontWeight="600" fill="var(--color-text-muted, #6b7280)">
+                    {label}
+                  </text>
+                  {hoverInfo.points.map((pt, i) => (
+                    <text key={pt.tag.id} x={tipX + 6} y={tipY + 12 + (i + 1) * 16} fontSize="9" fill={TAG_COLORS[i % TAG_COLORS.length]}>
+                      {pt.tag.label}: {pt.actual.toFixed(1)}
+                    </text>
+                  ))}
+                </g>
+              )
+            })()}
+          </g>
         )}
       </svg>
     </div>
@@ -584,6 +656,8 @@ function AnalysisPanel({ workOrder }) {
   const [realtimeTimestamp,  setRealtimeTimestamp]  = useState(null)
   const [matRangeStart,      setMatRangeStart]      = useState(workOrder?.startTime ?? '')
   const [matRangeEnd,        setMatRangeEnd]        = useState(workOrder?.endTime   ?? '')
+  const [trendStart,         setTrendStart]         = useState(workOrder?.startTime ?? '')
+  const [trendEnd,           setTrendEnd]           = useState(workOrder?.endTime   ?? '')
 
   return (
     <div className={styles.analysisPanel}>
@@ -601,6 +675,7 @@ function AnalysisPanel({ workOrder }) {
       <div className={styles.tabContent}>
         {activeTab === 'trending' && (
           <div className={styles.trendingTab}>
+            {/* Left: tag selector */}
             <TagSelector
               selectedTags={selectedTags}
               onToggle={id => setSelectedTags(prev => {
@@ -618,12 +693,39 @@ function AnalysisPanel({ workOrder }) {
                 })
               }}
             />
-            <TrendChart
-              workOrder={workOrder}
-              selectedTags={MOCK_TAGS.filter(t => selectedTags.has(t.id))}
-              selectedTimestamp={selectedTimestamp}
-              onTimestampSelect={setSelectedTimestamp}
-            />
+            {/* Right: time controls + chart */}
+            <div className={styles.trendChartPane}>
+              {(() => {
+                function toInputVal(iso) {
+                  const d = new Date(iso)
+                  if (isNaN(d.getTime())) return ''
+                  const pad = n => String(n).padStart(2, '0')
+                  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+                }
+                const minVal = toInputVal(workOrder?.startTime ?? '')
+                const maxVal = toInputVal(workOrder?.endTime   ?? '')
+                return (
+                  <div className={styles.trendRangeRow}>
+                    <label className={styles.trendRangeLabel}>From</label>
+                    <input type="datetime-local" className={styles.trendRangeInput}
+                      value={toInputVal(trendStart)} min={minVal} max={maxVal}
+                      onChange={e => setTrendStart(e.target.value)} />
+                    <label className={styles.trendRangeLabel}>To</label>
+                    <input type="datetime-local" className={styles.trendRangeInput}
+                      value={toInputVal(trendEnd)} min={minVal} max={maxVal}
+                      onChange={e => setTrendEnd(e.target.value)} />
+                  </div>
+                )
+              })()}
+              <TrendChart
+                workOrder={workOrder}
+                selectedTags={MOCK_TAGS.filter(t => selectedTags.has(t.id))}
+                selectedTimestamp={selectedTimestamp}
+                onTimestampSelect={setSelectedTimestamp}
+                rangeStart={trendStart}
+                rangeEnd={trendEnd}
+              />
+            </div>
           </div>
         )}
         {activeTab === 'realtime' && (

@@ -233,3 +233,46 @@ index.html
 - **Tests:** N/A — no test framework configured
 - **Coverage:** N/A
 - **Issues:** 0 critical, 2 warnings (SVG viewBox H=280 vs plan's 300 — accepted; en-dash vs hyphen in material name — accepted)
+
+---
+
+### 2026-04-09 — Phase 1 of Product Run UX Enhancements (Tab Bar Scroll Fix)
+- **Files changed:** `src/pages/WorkOrderDetailsPage.module.css`
+- **Tests:** N/A — no test framework configured
+- **Deviations:** none
+
+---
+
+### 2026-04-09 — Phase 2 of Product Run UX Enhancements (AnalysisContext — Clear Fix + WO Filter State)
+- **Files changed:** `src/context/AnalysisContext.jsx`
+- **Tests:** N/A — no test framework configured
+- **Deviations:** none
+
+---
+
+### 2026-04-09 — Phase 3 of Product Run UX Enhancements (WO Filter SideNav UI)
+- **Files changed:** `src/components/layout/SideNav.jsx`, `src/components/layout/SideNav.module.css`
+- **Tests:** N/A — no test framework configured
+- **Deviations:** Used `styles.sectionLabel` (existing pattern) instead of `styles.label` as written in plan; WO field changed to text input with match list and restricted to product_run type (user request)
+
+---
+
+### 2026-04-09 — Phase 4 of Product Run UX Enhancements (Trend Tab Layout + Time Controls)
+- **Files changed:** `src/pages/WorkOrderDetailsPage.jsx`, `src/pages/WorkOrderDetailsPage.module.css`
+- **Tests:** N/A — no test framework configured
+- **Deviations:** none
+
+---
+
+### 2026-04-09 — Phase 5 of Product Run UX Enhancements (Trend Chart Hover Tooltips)
+- **Files changed:** `src/pages/WorkOrderDetailsPage.jsx`
+- **Tests:** N/A — no test framework configured
+- **Deviations:** none
+
+---
+
+### 2026-04-09 — Verify: Product Run UX Enhancements
+- **Result:** ready for commit
+- **Tests:** N/A — no test framework configured
+- **Coverage:** N/A
+- **Issues:** 0 critical, 3 warnings (date reset to defaults not empty — better behavior; canRun guard for filterWorkOrder — required; mousemove perf at scale — mock only)

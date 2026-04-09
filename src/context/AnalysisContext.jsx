@@ -30,6 +30,15 @@ export const COLORS = [
   { id: 'coastal-gray', label: 'Coastal Gray', hex: '#5a6060', families: ['ArmorGuard'] },
 ]
 
+export const MOCK_FILTER_WOS = [
+  { id: 'WO-10021', label: 'WO-10021 — Black PE Pipe 1.25" OD',   startTime: '2025-01-06T06:00', endTime: '2025-01-06T14:30' },
+  { id: 'WO-10022', label: 'WO-10022 — Red HDPE Conduit 2.0" OD', startTime: '2025-01-06T14:30', endTime: '2025-01-06T23:00' },
+  { id: 'WO-10023', label: 'WO-10023 — White PVC Tube 0.75" OD',  startTime: '2025-01-07T06:00', endTime: '2025-01-07T15:15' },
+  { id: 'WO-10024', label: 'WO-10024 — Gray PVC Conduit 3.0" OD', startTime: '2025-01-07T15:15', endTime: '2025-01-08T00:00' },
+  { id: 'WO-10025', label: 'WO-10025 — White HDPE Pipe 0.5" OD',  startTime: '2025-01-08T06:00', endTime: '2025-01-08T13:45' },
+  { id: 'WO-10026', label: 'WO-10026 — Black PE Tube 1.0" OD',    startTime: '2025-01-08T13:45', endTime: '2025-01-08T22:30' },
+]
+
 // Seed-based pseudo-random so values look realistic but are deterministic
 function fakeMetric(base, range, seed) {
   return Math.round((base + ((seed * 7919) % range) - range / 2) * 10) / 10
@@ -220,6 +229,7 @@ export function AnalysisProvider({ children }) {
   const [analysisResults,  setAnalysisResults]  = useState(null)
   const [isRunning,        setIsRunning]        = useState(false)
   const [selectedWorkOrder, setSelectedWorkOrder] = useState(null)
+  const [filterWorkOrder,   setFilterWorkOrder]   = useState(null)
 
   // Filter colors by selected product families (empty selection = show all)
   const availableColors = useMemo(() => {
@@ -233,9 +243,7 @@ export function AnalysisProvider({ children }) {
       : null
 
   const canRun =
-    startDate !== '' &&
-    endDate   !== '' &&
-    !dateError &&
+    (filterWorkOrder != null || (startDate !== '' && endDate !== '' && !dateError)) &&
     selectedLines.size > 0 &&
     (analysisType !== '' || groupBy !== '')
 
@@ -260,9 +268,9 @@ export function AnalysisProvider({ children }) {
   function clearAll() {
     setPlant('all')
     setArea('All')
-    setAnalysisType('')
-    setStartDate('')
-    setEndDate('')
+    // analysisType intentionally NOT reset — user stays on current analysis page
+    setStartDate('2025-01-01')
+    setEndDate('2025-03-31')
     setGroupBy('')
     setSelectedLines(new Set(LINES))
     setSelectedFamilies(new Set())
@@ -270,6 +278,7 @@ export function AnalysisProvider({ children }) {
     setAnalysisResults(null)
     setIsRunning(false)
     setSelectedWorkOrder(null)
+    setFilterWorkOrder(null)
   }
 
   function runAnalysis() {
@@ -319,6 +328,8 @@ export function AnalysisProvider({ children }) {
       analysisResults,
       isRunning,
       selectedWorkOrder, setSelectedWorkOrder,
+      filterWorkOrder,   setFilterWorkOrder,
+      MOCK_FILTER_WOS,
     }}>
       {children}
     </AnalysisContext.Provider>

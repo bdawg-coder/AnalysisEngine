@@ -263,3 +263,64 @@
     transform: translateX(-272px);
   }
 }
+
+/* ── WO Filter ────────────────────────────────────── */
+
+.woTimeHint {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem;
+}
+
+.woClearBtn {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-size: 0.7rem;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.woClearBtn:hover {
+  color: var(--color-danger, #dc2626);
+}
+
+.woMatchList {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: 0.375rem;
+  margin-top: 0.25rem;
+  overflow: hidden;
+  background: var(--color-surface-1);
+}
+
+.woMatchItem {
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  font-size: 0.78rem;
+  padding: 0.4rem 0.6rem;
+  text-align: left;
+}
+
+.woMatchItem:last-child {
+  border-bottom: none;
+}
+
+.woMatchItem:hover {
+  background: var(--color-surface-2, var(--color-surface-1));
+}
+
+.dateInputDisabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

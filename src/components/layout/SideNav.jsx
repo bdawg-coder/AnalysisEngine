@@ -1,10 +1,13 @@
+import { useState } from 'react'
 import {
   useAnalysis,
-  PLANTS, ANALYSIS_TYPES, AREAS, LINES, PRODUCT_FAMILIES,
+  PLANTS, ANALYSIS_TYPES, AREAS, LINES, PRODUCT_FAMILIES, MOCK_FILTER_WOS,
 } from '../../context/AnalysisContext'
 import styles from './SideNav.module.css'
 
 export default function SideNav({ collapsed }) {
+  const [woSearch, setWoSearch] = useState('')
+
   const {
     plant,        setPlant,
     area,         setArea,
@@ -20,6 +23,7 @@ export default function SideNav({ collapsed }) {
     canRun,
     runAnalysis,
     clearAll,
+    filterWorkOrder, setFilterWorkOrder,
   } = useAnalysis()
 
   const allFamiliesOn = selectedFamilies.size === 0
@@ -81,24 +85,73 @@ export default function SideNav({ collapsed }) {
               </select>
             </div>
 
+            {/* ── Work Order Filter (Product Run only) ── */}
+            {analysisType === 'product_run' && (() => {
+              const matches = woSearch.trim()
+                ? MOCK_FILTER_WOS.filter(w =>
+                    w.id.toLowerCase().includes(woSearch.toLowerCase()) ||
+                    w.label.toLowerCase().includes(woSearch.toLowerCase())
+                  )
+                : []
+              return (
+                <div className={styles.section}>
+                  <span className={styles.sectionLabel}>Work Order</span>
+                  <input
+                    type="text"
+                    className={styles.dateInput}
+                    placeholder="Search WO…"
+                    value={filterWorkOrder ? filterWorkOrder.id : woSearch}
+                    onChange={e => {
+                      setWoSearch(e.target.value)
+                      if (!e.target.value) setFilterWorkOrder(null)
+                    }}
+                  />
+                  {matches.length > 0 && !filterWorkOrder && (
+                    <div className={styles.woMatchList}>
+                      {matches.map(wo => (
+                        <button
+                          key={wo.id}
+                          className={styles.woMatchItem}
+                          onClick={() => { setFilterWorkOrder(wo); setWoSearch('') }}
+                        >
+                          {wo.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {filterWorkOrder && (
+                    <span className={styles.woTimeHint}>
+                      {filterWorkOrder.startTime} → {filterWorkOrder.endTime}
+                      <button
+                        className={styles.woClearBtn}
+                        onClick={() => { setFilterWorkOrder(null); setWoSearch('') }}
+                      >✕</button>
+                    </span>
+                  )}
+                </div>
+              )
+            })()}
+
             {/* ── Date Range ── */}
             <div className={styles.section}>
               <span className={styles.sectionLabel}>Date Range</span>
               <div className={styles.dateStack}>
                 <input
-                  className={`${styles.dateInput}${dateError ? ` ${styles.inputError}` : ''}`}
+                  className={`${styles.dateInput}${filterWorkOrder ? ` ${styles.dateInputDisabled}` : ''}${dateError ? ` ${styles.inputError}` : ''}`}
                   type="date"
-                  value={startDate}
+                  disabled={!!filterWorkOrder}
+                  value={filterWorkOrder ? filterWorkOrder.startTime.slice(0, 10) : startDate}
                   onChange={e => setStartDate(e.target.value)}
                 />
                 <input
-                  className={`${styles.dateInput}${dateError ? ` ${styles.inputError}` : ''}`}
+                  className={`${styles.dateInput}${filterWorkOrder ? ` ${styles.dateInputDisabled}` : ''}${dateError ? ` ${styles.inputError}` : ''}`}
                   type="date"
-                  value={endDate}
+                  disabled={!!filterWorkOrder}
+                  value={filterWorkOrder ? filterWorkOrder.endTime.slice(0, 10) : endDate}
                   onChange={e => setEndDate(e.target.value)}
                 />
               </div>
-              {dateError && <span className={styles.errorText}>{dateError}</span>}
+              {dateError && !filterWorkOrder && <span className={styles.errorText}>{dateError}</span>}
             </div>
 
             {/* ── Lines ── */}
