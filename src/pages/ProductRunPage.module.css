@@ -44,3 +44,65 @@
 @media (max-width: 500px) {
   .kpiGrid { grid-template-columns: 1fr; }
 }
+
+/* ── Post Run Analysis Table ─────────────────────────── */
+
+.tableSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tableSectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.th {
+  position: sticky;
+  top: 0;
+  background: var(--color-surface-2);
+  color: var(--color-text-primary);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  white-space: nowrap;
+  border-bottom: 2px solid var(--color-border);
+  font-weight: 600;
+}
+
+.td {
+  padding: 0.45rem 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+  color: var(--color-text-primary);
+}
+
+.trOdd > .td {
+  background: var(--color-surface-1);
+}
+
+.trClickable {
+  cursor: pointer;
+}
+
+.trClickable:hover > .td {
+  background: var(--color-surface-2);
+}
+
+.tdGreen  { color: #16a34a; font-weight: 600; }
+.tdYellow { color: #ca8a04; font-weight: 600; }
+.tdRed    { color: #dc2626; font-weight: 600; }

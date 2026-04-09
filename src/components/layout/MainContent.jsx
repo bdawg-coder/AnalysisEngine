@@ -3,13 +3,13 @@ import { useAnalysis } from '../../context/AnalysisContext'
 import ColorAnalysisPage from '../../pages/ColorAnalysisPage'
 import ProductRunPage from '../../pages/ProductRunPage'
 import OverviewAnalysisPage from '../../pages/OverviewAnalysisPage'
+import WorkOrderDetailsPage from '../../pages/WorkOrderDetailsPage'
 
 export default function MainContent() {
-  const { analysisType, analysisResults, isRunning } = useAnalysis()
+  const { analysisType, analysisResults, isRunning, selectedWorkOrder } = useAnalysis()
 
   if (analysisType === 'product_run') {
-    if (isRunning || analysisResults) return <ProductRunPage />
-    return (
+    if (!isRunning && !analysisResults) return (
       <OnboardingScreen
         title="Product Run Analysis"
         steps={[
@@ -20,6 +20,8 @@ export default function MainContent() {
         ]}
       />
     )
+    if (selectedWorkOrder) return <WorkOrderDetailsPage />
+    return <ProductRunPage />
   }
 
   if (analysisType === 'color_analysis') {
