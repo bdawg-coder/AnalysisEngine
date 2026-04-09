@@ -31,13 +31,15 @@ export const COLORS = [
 ]
 
 export const MOCK_FILTER_WOS = [
-  { id: 'WO-10021', label: 'WO-10021 — Black PE Pipe 1.25" OD',   startTime: '2025-01-06T06:00', endTime: '2025-01-06T14:30' },
-  { id: 'WO-10022', label: 'WO-10022 — Red HDPE Conduit 2.0" OD', startTime: '2025-01-06T14:30', endTime: '2025-01-06T23:00' },
-  { id: 'WO-10023', label: 'WO-10023 — White PVC Tube 0.75" OD',  startTime: '2025-01-07T06:00', endTime: '2025-01-07T15:15' },
-  { id: 'WO-10024', label: 'WO-10024 — Gray PVC Conduit 3.0" OD', startTime: '2025-01-07T15:15', endTime: '2025-01-08T00:00' },
-  { id: 'WO-10025', label: 'WO-10025 — White HDPE Pipe 0.5" OD',  startTime: '2025-01-08T06:00', endTime: '2025-01-08T13:45' },
-  { id: 'WO-10026', label: 'WO-10026 — Black PE Tube 1.0" OD',    startTime: '2025-01-08T13:45', endTime: '2025-01-08T22:30' },
+  { id: 'WO-10021', label: 'WO-10021 — Black PE Pipe 1.25" OD',   description: 'Black PE Pipe 1.25" OD',   startTime: '2025-01-06T06:00', endTime: '2025-01-06T14:30' },
+  { id: 'WO-10022', label: 'WO-10022 — Red HDPE Conduit 2.0" OD', description: 'Red HDPE Conduit 2.0" OD', startTime: '2025-01-06T14:30', endTime: '2025-01-06T23:00' },
+  { id: 'WO-10023', label: 'WO-10023 — White PVC Tube 0.75" OD',  description: 'White PVC Tube 0.75" OD',  startTime: '2025-01-07T06:00', endTime: '2025-01-07T15:15' },
+  { id: 'WO-10024', label: 'WO-10024 — Gray PVC Conduit 3.0" OD', description: 'Gray PVC Conduit 3.0" OD', startTime: '2025-01-07T15:15', endTime: '2025-01-08T00:00' },
+  { id: 'WO-10025', label: 'WO-10025 — White HDPE Pipe 0.5" OD',  description: 'White HDPE Pipe 0.5" OD',  startTime: '2025-01-08T06:00', endTime: '2025-01-08T13:45' },
+  { id: 'WO-10026', label: 'WO-10026 — Black PE Tube 1.0" OD',    description: 'Black PE Tube 1.0" OD',    startTime: '2025-01-08T13:45', endTime: '2025-01-08T22:30' },
 ]
+
+const WO_DESCRIPTIONS = Object.fromEntries(MOCK_FILTER_WOS.map(wo => [wo.id, wo.description]))
 
 // Seed-based pseudo-random so values look realistic but are deterministic
 function fakeMetric(base, range, seed) {
@@ -138,7 +140,7 @@ function getRowTimes(groupBy, option) {
   return { startTime: `${iso(option.date)} 07:00`, endTime: `${iso(option.date)} 19:00` }
 }
 
-function buildMockRows(groupBy, selectedLines, startDate, endDate) {
+function buildMockRows(groupBy, selectedLines, startDate, endDate, filterWorkOrder = null) {
   const lines   = [...selectedLines]
   const options = buildGroupOptions(groupBy, startDate, endDate)
   const rows    = []
@@ -160,9 +162,11 @@ function buildMockRows(groupBy, selectedLines, startDate, endDate) {
       const scrap        = infeed - outfeed
       const scrapPct     = Math.round((scrap / infeed) * 1000) / 10
       const { startTime, endTime } = getRowTimes(groupBy, option)
+      const workOrderDescription = groupBy === 'run' ? (WO_DESCRIPTIONS[option.label] ?? null) : null
       rows.push({
         line,
         groupedOption: option.label,
+        workOrderDescription,
         startTime,
         endTime,
         duration:      `${duration} hrs`,
@@ -175,6 +179,9 @@ function buildMockRows(groupBy, selectedLines, startDate, endDate) {
       })
     })
   })
+  if (filterWorkOrder && groupBy === 'run') {
+    return rows.filter(r => r.groupedOption === filterWorkOrder.id)
+  }
   return rows
 }
 
@@ -289,12 +296,12 @@ export function AnalysisProvider({ children }) {
     // Snapshot filter state at call time so async result reflects what was selected
     const effectiveGroupBy = groupBy || (analysisType === 'product_run' ? 'run' : 'month')
     if (!groupBy) setGroupBy(effectiveGroupBy)
-    const snap = { groupBy: effectiveGroupBy, selectedLines, startDate, endDate }
+    const snap = { groupBy: effectiveGroupBy, selectedLines, startDate, endDate, filterWorkOrder }
     setTimeout(() => {
       setAnalysisResults({
         ...MOCK_RESULTS,
         groupBy: snap.groupBy,
-        rows: buildMockRows(snap.groupBy, snap.selectedLines, snap.startDate, snap.endDate),
+        rows: buildMockRows(snap.groupBy, snap.selectedLines, snap.startDate, snap.endDate, snap.filterWorkOrder),
       })
       setIsRunning(false)
     }, 600)

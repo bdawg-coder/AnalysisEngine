@@ -853,7 +853,7 @@ export default function WorkOrderDetailsPage() {
   const { selectedWorkOrder, setSelectedWorkOrder } = useAnalysis()
   const wo = selectedWorkOrder
 
-  const description = MOCK_WO_DESCRIPTIONS[wo?.groupedOption] ?? '—'
+  const description = wo?.workOrderDescription ?? MOCK_WO_DESCRIPTIONS[wo?.groupedOption] ?? '—'
   const tools       = buildMockTools(wo ?? {})
   const states      = buildMockStates(wo ?? {})
 
@@ -865,6 +865,11 @@ export default function WorkOrderDetailsPage() {
 
       <section className={styles.section}>
         <h1 className={styles.sectionTitle}>Work Order Details</h1>
+        {wo?.workOrderDescription && (
+          <p className={styles.woSubtitle}>
+            {wo.groupedOption} — {wo.workOrderDescription}
+          </p>
+        )}
         <div className={styles.headerGrid}>
           <span className={styles.headerLabel}>Line</span>
           <span className={styles.headerValue}>{wo?.line ?? '—'}</span>

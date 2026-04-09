@@ -5,9 +5,10 @@ import { KpiCard, KpiCardSkeleton } from '../components/KpiCard'
 const GROUP_LABELS = { month: 'Month', week: 'Week', day: 'Day', shift: 'Shift', run: 'Run' }
 
 const COLUMNS = [
-  { key: 'line',          header: 'Line'          },
-  { key: 'groupedOption', header: null            },  // label comes from analysisResults.groupBy
-  { key: 'startTime',     header: 'Start Time'    },
+  { key: 'line',                 header: 'Line'           },
+  { key: 'groupedOption',        header: null             },  // label comes from analysisResults.groupBy
+  { key: 'workOrderDescription', header: 'WO Description', runOnly: true, nullable: true },
+  { key: 'startTime',            header: 'Start Time'     },
   { key: 'endTime',       header: 'End Time'      },
   { key: 'duration',      header: 'Duration'      },
   { key: 'runTime',       header: 'Run Time'      },
@@ -33,6 +34,7 @@ function metricColorClass(value) {
 
 function RunAnalysisTable({ rows, groupBy }) {
   const groupLabel = GROUP_LABELS[groupBy] ?? 'Group'
+  const visibleColumns = COLUMNS.filter(col => !col.runOnly || groupBy === 'run')
   return (
     <section className={styles.tableSection}>
       <h2 className={styles.tableSectionTitle}>Post Run Analysis</h2>
@@ -40,7 +42,7 @@ function RunAnalysisTable({ rows, groupBy }) {
         <table className={styles.table}>
           <thead>
             <tr>
-              {COLUMNS.map(col => (
+              {visibleColumns.map(col => (
                 <th key={col.key} className={styles.th}>
                   {col.key === 'groupedOption' ? groupLabel : col.header}
                 </th>
@@ -50,11 +52,12 @@ function RunAnalysisTable({ rows, groupBy }) {
           <tbody>
             {rows.map((row, i) => (
               <tr key={i} className={i % 2 === 0 ? undefined : styles.trOdd}>
-                {COLUMNS.map(col => {
+                {visibleColumns.map(col => {
                   const colorClass = col.color ? metricColorClass(row[col.key]) : ''
+                  const value = row[col.key]
                   return (
                     <td key={col.key} className={`${styles.td} ${colorClass}`}>
-                      {col.pct ? `${row[col.key]}%` : row[col.key]}
+                      {col.pct ? `${value}%` : (col.nullable && value == null ? '—' : value)}
                     </td>
                   )
                 })}

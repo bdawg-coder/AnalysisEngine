@@ -40,6 +40,13 @@
   margin: 0;
 }
 
+.woSubtitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
 /* ── Header Grid ─────────────────────────────────────── */
 
 .headerGrid {

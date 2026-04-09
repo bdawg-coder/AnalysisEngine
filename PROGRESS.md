@@ -276,3 +276,32 @@ index.html
 - **Tests:** N/A — no test framework configured
 - **Coverage:** N/A
 - **Issues:** 0 critical, 3 warnings (date reset to defaults not empty — better behavior; canRun guard for filterWorkOrder — required; mousemove perf at scale — mock only)
+
+---
+
+### 2026-04-09 — Phase 1 of WO Filter & Description (Data Layer — AnalysisContext)
+- **Files changed:** `src/context/AnalysisContext.jsx`
+- **Tests:** N/A — no test framework configured
+- **Deviations:** none
+
+---
+
+### 2026-04-09 — Phase 2 of WO Filter & Description (WO Description Column in Tables)
+- **Files changed:** `src/pages/ProductRunPage.jsx`, `src/pages/OverviewAnalysisPage.jsx`
+- **Tests:** N/A — no test framework configured
+- **Deviations:** Added `runOnly` and `nullable` flags to column definition; `visibleColumns` filter derived inline in `RunAnalysisTable` — cleaner than filtering at render site
+
+---
+
+### 2026-04-09 — Phase 3 of WO Filter & Description (Description in Details Page Header)
+- **Files changed:** `src/pages/WorkOrderDetailsPage.jsx`, `src/pages/WorkOrderDetailsPage.module.css`
+- **Tests:** N/A — no test framework configured
+- **Deviations:** `description` variable now prefers `wo?.workOrderDescription` with fallback to local `MOCK_WO_DESCRIPTIONS` map (defensive; map kept in place)
+
+---
+
+### 2026-04-09 — Verify: WO Filter & Description
+- **Result:** ready for commit
+- **Tests:** N/A — no test framework configured
+- **Coverage:** N/A
+- **Issues:** 0 critical, 2 warnings (column `label` vs `header` key — accepted; `MOCK_WO_DESCRIPTIONS` redundant but harmless — accepted)
