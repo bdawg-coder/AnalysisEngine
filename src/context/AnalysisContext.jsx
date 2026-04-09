@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useMemo } from 'react'
+import { createContext, useContext, useState, useMemo, useEffect } from 'react'
 
 export const PLANTS = [
   { value: 'all', label: 'All' },
@@ -219,6 +219,7 @@ export function AnalysisProvider({ children }) {
   const [selectedColors,   setSelectedColors]   = useState(new Set(COLORS.map(c => c.id)))
   const [analysisResults,  setAnalysisResults]  = useState(null)
   const [isRunning,        setIsRunning]        = useState(false)
+  const [selectedWorkOrder, setSelectedWorkOrder] = useState(null)
 
   // Filter colors by selected product families (empty selection = show all)
   const availableColors = useMemo(() => {
@@ -268,14 +269,18 @@ export function AnalysisProvider({ children }) {
     setSelectedColors(new Set(COLORS.map(c => c.id)))
     setAnalysisResults(null)
     setIsRunning(false)
+    setSelectedWorkOrder(null)
   }
 
   function runAnalysis() {
     if (!canRun) return
+    setSelectedWorkOrder(null)
     setIsRunning(true)
     setAnalysisResults(null)
     // Snapshot filter state at call time so async result reflects what was selected
-    const snap = { groupBy, selectedLines, startDate, endDate }
+    const effectiveGroupBy = groupBy || (analysisType === 'product_run' ? 'run' : 'month')
+    if (!groupBy) setGroupBy(effectiveGroupBy)
+    const snap = { groupBy: effectiveGroupBy, selectedLines, startDate, endDate }
     setTimeout(() => {
       setAnalysisResults({
         ...MOCK_RESULTS,
@@ -285,6 +290,13 @@ export function AnalysisProvider({ children }) {
       setIsRunning(false)
     }, 600)
   }
+
+  // Auto-initialize Product Run Analysis when navigating to it with no existing results
+  useEffect(() => {
+    if (analysisType === 'product_run' && !analysisResults && !isRunning) {
+      runAnalysis()
+    }
+  }, [analysisType]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <AnalysisContext.Provider value={{
@@ -306,6 +318,7 @@ export function AnalysisProvider({ children }) {
       runAnalysis,
       analysisResults,
       isRunning,
+      selectedWorkOrder, setSelectedWorkOrder,
     }}>
       {children}
     </AnalysisContext.Provider>

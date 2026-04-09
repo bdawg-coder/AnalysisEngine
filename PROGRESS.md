@@ -132,3 +132,68 @@ index.html
 - **Tests:** N/A — no test framework configured
 - **Coverage:** N/A
 - **Issues:** 0 critical, 1 warning (no test framework; aspirational rules rows in CLAUDE.md — accepted)
+
+---
+
+### 2026-04-09 — Work Order Details: Phase 1 of 6 (AnalysisContext — selectedWorkOrder State)
+- **Files changed:** `src/context/AnalysisContext.jsx`
+- **Tests:** N/A — no test framework configured
+- **Deviations:** none
+
+---
+
+### 2026-04-09 — Work Order Details: Phase 2 of 6 (ProductRunPage — RunAnalysisTable with Row Navigation)
+- **Files changed:** `src/pages/ProductRunPage.jsx`, `src/pages/ProductRunPage.module.css`
+- **Tests:** N/A — no test framework configured
+- **Deviations:** none
+
+---
+
+### 2026-04-09 — Work Order Details: Phase 3 of 6 (MainContent — Route to WorkOrderDetailsPage)
+- **Files changed:** `src/components/layout/MainContent.jsx`, `src/pages/WorkOrderDetailsPage.jsx` (stub), `src/pages/WorkOrderDetailsPage.module.css` (stub)
+- **Tests:** N/A — no test framework configured
+- **Deviations:** Created stub WorkOrderDetailsPage so the import resolves before Phase 4 fleshes it out
+
+---
+
+### 2026-04-09 — Work Order Details: Phase 4 of 6 (WorkOrderDetailsPage — Header + Tool Breakdown)
+- **Files changed:** `src/pages/WorkOrderDetailsPage.jsx`, `src/pages/WorkOrderDetailsPage.module.css`
+- **Tests:** N/A — no test framework configured
+- **Deviations:** Added descriptions for WO-10024 through WO-10026 in MOCK_WO_DESCRIPTIONS (beyond plan's 3) to cover the full range of WOs the mock data generator can produce
+
+---
+
+### 2026-04-09 — Work Order Details: Phase 5 of 6 (WorkOrderDetailsPage — State Timeline Visualization)
+- **Files changed:** `src/pages/WorkOrderDetailsPage.jsx`, `src/pages/WorkOrderDetailsPage.module.css`
+- **Tests:** N/A — no test framework configured
+- **Deviations:** Used fixed STATE_SEQUENCE template varied by seed; overflow:visible on bar with first/last-child border-radius for tooltip visibility
+
+---
+
+### 2026-04-09 — Work Order Details: Phase 6 of 6 (WorkOrderDetailsPage — Split-Pane Analysis Section)
+- **Files changed:** `src/pages/WorkOrderDetailsPage.jsx`, `src/pages/WorkOrderDetailsPage.module.css`
+- **Tests:** N/A — no test framework configured
+- **Deviations:** Right panel uses flex:1 instead of explicit width calculation to absorb the 5px divider width; document listeners added once on mount (always-attached pattern) rather than dynamically added/removed per drag session — simpler and equally correct
+
+---
+
+### 2026-04-09 — Verify: Work Order Details
+- **Result:** ready for commit (1 fix applied post-review: clearAll now resets selectedWorkOrder)
+- **Tests:** N/A — no test framework configured
+- **Coverage:** N/A
+- **Issues:** 0 critical, 1 warning (static mock operator notes — accepted for now)
+
+---
+
+### 2026-04-09 — Phase 1 of Product Run Initialization Fix
+- **Files changed:** `src/context/AnalysisContext.jsx`
+- **Tests:** N/A — no test framework configured
+- **Deviations:** none
+
+---
+
+### 2026-04-09 — Verify: Product Run Initialization Fix
+- **Result:** ready for commit
+- **Tests:** N/A — no test framework configured
+- **Coverage:** N/A
+- **Issues:** 0 critical, 2 warnings (setGroupBy side effect on all types — accepted; Strict Mode double-effect dev-only — accepted)
