@@ -197,3 +197,39 @@ index.html
 - **Tests:** N/A — no test framework configured
 - **Coverage:** N/A
 - **Issues:** 0 critical, 2 warnings (setGroupBy side effect on all types — accepted; Strict Mode double-effect dev-only — accepted)
+
+---
+
+### 2026-04-09 — Phase 1 of Work Order Trending, Tags & Raw Material
+- **Files changed:** `src/pages/WorkOrderDetailsPage.jsx`
+- **Tests:** N/A — no test framework configured
+- **Deviations:** none
+
+---
+
+### 2026-04-09 — Phase 2 of Work Order Trending, Tags & Raw Material
+- **Files changed:** `src/pages/WorkOrderDetailsPage.jsx`, `src/pages/WorkOrderDetailsPage.module.css`
+- **Tests:** N/A — no test framework configured
+- **Deviations:** none
+
+---
+
+### 2026-04-09 — Phase 3 of Work Order Trending, Tags & Raw Material (revised)
+- **Files changed:** `src/pages/WorkOrderDetailsPage.jsx`, `src/pages/WorkOrderDetailsPage.module.css`
+- **Tests:** N/A — no test framework configured
+- **Deviations:** SnapshotTable moved to Realtime tab with independent datetime-local input showing all tags; removed from Trending tab
+
+---
+
+### 2026-04-09 — Phase 4 of Work Order Trending, Tags & Raw Material
+- **Files changed:** `src/pages/WorkOrderDetailsPage.jsx`, `src/pages/WorkOrderDetailsPage.module.css`
+- **Tests:** N/A — no test framework configured
+- **Deviations:** none
+
+---
+
+### 2026-04-09 — Verify: Work Order Trending, Tags & Raw Material
+- **Result:** ready for commit
+- **Tests:** N/A — no test framework configured
+- **Coverage:** N/A
+- **Issues:** 0 critical, 2 warnings (SVG viewBox H=280 vs plan's 300 — accepted; en-dash vs hyphen in material name — accepted)
